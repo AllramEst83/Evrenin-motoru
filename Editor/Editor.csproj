@@ -7,7 +7,7 @@
     <UseWPF>true</UseWPF>
     <PlatformTarget>x64</PlatformTarget>
     <StartupObject>Editor.App</StartupObject>
-    <BaseOutputPath>C:\Users\kaywi\source\repos\Evrenin motoru\x64</BaseOutputPath>
+    <BaseOutputPath>C:\Users\kaywi\source\repos\EvreninMotoru\x64</BaseOutputPath>
 	  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
@@ -20,7 +20,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Services\" />
+    <Folder Include="ProjectTemplates\EmptyProject\" />
+    <Folder Include="ProjectTemplates\FirstPersonProject\" />
+    <Folder Include="ProjectTemplates\ThirdPersonProject\" />
   </ItemGroup>
 
 </Project>
