@@ -1,0 +1,31 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <!--CustomBorderRadius-->
+    <Style x:Key="RoundButton">
+        <Style.Resources>
+            <Style TargetType="Border">
+                <Setter Property="CornerRadius" Value="5" />
+            </Style>
+        </Style.Resources>
+    </Style>
+    
+   <!--CustomBorderRadius-->
+    <!--Colors-->
+    <Color x:Key="MainBackgroudColor">#c7ecee</Color>
+    <Color x:Key="OpenProjectBackgroundColor">#f6e58d</Color>
+    <Color x:Key="CreateProjectBackgroundColro">#badc58</Color>
+
+    <!--Colors-->
+    <!--Brushes-->
+    <SolidColorBrush x:Key="MainBackgroudBrush"
+                   Color="{StaticResource MainBackgroudColor}" />
+
+    <SolidColorBrush x:Key="OpenProjectBackgroundBrush"
+                   Color="{StaticResource OpenProjectBackgroundColor}" />
+
+    <SolidColorBrush x:Key="CreateProjectBackgroundBrush"
+                   Color="{StaticResource CreateProjectBackgroundColro}" />
+    <!--Brushes-->
+
+</ResourceDictionary>
