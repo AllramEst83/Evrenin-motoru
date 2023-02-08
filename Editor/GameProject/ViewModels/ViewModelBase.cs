@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Runtime.Serialization;
 
-namespace Editor.GameProject
+namespace Editor.GameProject.ViewModels
 {
     [DataContract(IsReference = true)]
     public class ViewModelBase : INotifyPropertyChanged

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Editor.GameProject.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -8,18 +9,16 @@ using System.Threading.Tasks;
 namespace Editor.GameProject.Models
 {
     [DataContract]
-    public class ProjectTemplate
+    public class ProjectData
     {
         [DataMember]
-        public string ProjectType { get; set; }
+        public string ProjectName { get; set; }
         [DataMember]
-        public string ProjectFile { get; set; }
+        public string ProjectPath { get; set; }
         [DataMember]
-        public List<string> Folders { get; set; }
+        public DateTime Date { get; set; }
+        public string FullPath { get => $"{ProjectPath}{ProjectName}{ProjectViewModel.Exstension}"; }
         public byte[] Icon { get; set; }
         public byte[] Screenshot { get; set; }
-        public string IconFilePath { get; set; }
-        public string ScreenshotFilePath { get; set; }
-        public string ProjectFilePath { get; set; }
     }
 }

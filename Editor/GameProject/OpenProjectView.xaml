@@ -3,16 +3,46 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Editor.GameProject"
+             xmlns:local="clr-namespace:Editor.GameProject.ViewModels"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              Width="800">
+    <UserControl.DataContext>
+        <local:OpenProjectViewModel/>
+    </UserControl.DataContext>
     <Grid>
         <StackPanel  Background="{DynamicResource OpenProjectBackgroundBrush}">
             <!--List of projects-->
             <StackPanel  Orientation="Horizontal" HorizontalAlignment="Center">
-                <ListBox Width="195" Height="250" Margin="0,30,0,0" Style="{DynamicResource RoundButton}"/>
-                <Border Width="400" Height="250" Margin="5,0,0,0"/>
+                <ListBox 
+                    Name="projectsListBox"
+                    ItemsSource="{Binding Projects}" 
+                    Width="195" 
+                    Height="250" 
+                    Margin="0,30,0,0" 
+                    Style="{DynamicResource RoundButton}"
+                    SelectedIndex="0">
+
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,5,0">
+                                <Image Source="{Binding Icon}" Width="20"/>
+                                <TextBlock Text="{Binding ProjectName}" FontSize="14"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+
+                </ListBox>
+                <Border 
+                    Width="400" 
+                    Height="250" 
+                    Margin="5,30,0,0"
+                    Style="{DynamicResource RoundButton}">
+
+                    <Border.Background>
+                        <ImageBrush ImageSource="{Binding Path=SelectedItem.Screenshot, ElementName=projectsListBox}" />
+                    </Border.Background>
+                </Border>
             </StackPanel>
             <!--List of projects-->
             

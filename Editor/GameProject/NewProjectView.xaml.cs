@@ -1,4 +1,5 @@
 ﻿using Editor.GameProject.Models;
+using Editor.GameProject.ViewModels;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -53,6 +54,13 @@ namespace Editor.GameProject
             var window = Window.GetWindow(this);
             if (!string.IsNullOrEmpty(projectPath))
             {
+                var projectData = new ProjectData()
+                {
+                    ProjectName = viewModel.ProjectName,
+                    ProjectPath= projectPath,
+                };
+
+                var project = OpenProjectViewModel.Open(projectData);
                 dialogResult = true;
             }
 

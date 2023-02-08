@@ -6,10 +6,10 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Editor.GameProject.Models
+namespace Editor.GameProject.ViewModels
 {
     [DataContract(Name = "Game")]
-    public class Project : ViewModelBase
+    public class ProjectViewModel : ViewModelBase
     {
         public static string Exstension { get; } = ".evrenin";
         [DataMember]
@@ -18,13 +18,13 @@ namespace Editor.GameProject.Models
         public string Path { get; private set; }
         public string FullPath => $"{Path}{Name}{Exstension}";
         [DataMember(Name = "Scenes")]
-        private ObservableCollection<Scene> _scenes = new ObservableCollection<Scene>();
-        public ReadOnlyObservableCollection<Scene> Scenes { get; }
-        public Project(string name, string path)
+        private ObservableCollection<SceneViewModel> _scenes = new ObservableCollection<SceneViewModel>();
+        public ReadOnlyObservableCollection<SceneViewModel> Scenes { get; }
+        public ProjectViewModel(string name, string path)
         {
             Name = name;
             Path = path;
-            _scenes.Add(new Scene("Default scene", this));
+            _scenes.Add(new SceneViewModel("Default scene", this));
         }
     }
 }

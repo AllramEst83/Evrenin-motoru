@@ -6,10 +6,10 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Editor.GameProject.Models
+namespace Editor.GameProject.ViewModels
 {
     [DataContract]
-    public class Scene : ViewModelBase
+    public class SceneViewModel : ViewModelBase
     {
         private string _name;
         [DataMember]
@@ -26,9 +26,9 @@ namespace Editor.GameProject.Models
             }
         }
         [DataMember]
-        public Project Project { get; private set; }
+        public ProjectViewModel Project { get; private set; }
 
-        public Scene(string name, Project project)
+        public SceneViewModel(string name, ProjectViewModel project)
         {
             Debug.Assert(project != null);
             Name = name;
