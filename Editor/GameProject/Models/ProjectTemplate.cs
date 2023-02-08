@@ -20,6 +20,6 @@ namespace Editor.GameProject.Models
         public byte[] Screenshot { get; set; }
         public string IconFilePath { get; set; }
         public string ScreenShotFilePath { get; set; }
-        public string ProjecttFilePath { get; set; }
+        public string ProjectFilePath { get; set; }
     }
 }

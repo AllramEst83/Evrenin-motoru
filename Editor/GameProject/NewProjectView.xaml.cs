@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using Editor.GameProject.Models;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -39,8 +40,24 @@ namespace Editor.GameProject
             if (openFileDialog.ShowDialog() == true)
             {
                 FileInfo fInfo = new FileInfo(openFileDialog.FileName);
-                filePathTxt.Text =fInfo.DirectoryName;
+                filePathTxt.Text = fInfo.DirectoryName;
             }
+        }
+
+        private void OnCreate_Button_Click(object sender, RoutedEventArgs e)
+        {
+            var viewModel = DataContext as NewProjectViewModel;
+            var projectPath = viewModel.CreateProject(templateListBox.SelectedItem as ProjectTemplate);
+
+            bool dialogResult = false;
+            var window = Window.GetWindow(this);
+            if (!string.IsNullOrEmpty(projectPath))
+            {
+                dialogResult = true;
+            }
+
+            window.DialogResult = dialogResult;
+            window.Close();
         }
     }
 }

@@ -31,10 +31,10 @@
                             <StackPanel Orientation="Horizontal" Margin="0,0,5,0">
                                 <Image Source="{Binding Icon}" Width="20"/>
                                 <TextBlock Text="{Binding ProjectType}" FontSize="14"/>
-                            </StackPanel>                  
+                            </StackPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
-                    
+
                 </ListBox>
                 <Border 
                     Width="400" 
@@ -49,15 +49,26 @@
             </StackPanel>
             <!--List of projects-->
             <!--Name-->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,30,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
                 <TextBlock Text="Name" Width="50" />
-                <TextBox VerticalContentAlignment="Center" Height="25" Width="550" Text="{Binding Name}" Style="{DynamicResource RoundButton}"/>
+                <TextBox 
+                    VerticalContentAlignment="Center" 
+                    Height="25" 
+                    Width="550" 
+                    Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}" 
+                    Style="{DynamicResource RoundButton}"/>
             </StackPanel>
             <!--Name-->
             <!--Path-->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,0">
                 <TextBlock Text="Path" Width="50"/>
-                <TextBox Name="filePathTxt" VerticalContentAlignment="Center" Height="25" Width="500" Text="{Binding FolderPath}" Style="{DynamicResource RoundButton}"/>
+                <TextBox
+                    Name="filePathTxt" 
+                    VerticalContentAlignment="Center" 
+                    Height="25" 
+                    Width="500" 
+                    Text="{Binding ProjectPath, UpdateSourceTrigger=PropertyChanged}" 
+                    Style="{DynamicResource RoundButton}"/>
                 <Button
                     Content="Browse" 
                     Width="45" 
@@ -66,8 +77,21 @@
                     Click="OnOpenFileDialog_Click"/>
             </StackPanel>
             <!--Path-->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
-                <Button Content="Create" Width="95" Height="30" Style="{DynamicResource RoundButton}" IsDefault="True"/>
+            <!--ErrorMEssage-->
+            <TextBlock Text="{Binding ErrorMessage}" Margin="0,15,0,0" HorizontalAlignment="Center" Foreground="Red"/>
+            <!--ErrorMEssage-->
+            <!--Buttons-->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,0">
+                <Button 
+                    Content="Create" 
+                    Width="95" 
+                    Height="30" 
+                    Style="{DynamicResource RoundButton}" 
+                    IsDefault="False"
+                    IsEnabled="{Binding IsValid}" 
+                    Click="OnCreate_Button_Click"
+                    />
+
                 <Button 
                     Content="Exit" 
                     Width="95" 
@@ -77,6 +101,7 @@
                     Click="OnExit_Click"
                     IsCancel="True"/>
             </StackPanel>
+            <!--Buttons-->
         </StackPanel>
     </Grid>
 </UserControl>
