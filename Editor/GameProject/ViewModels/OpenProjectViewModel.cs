@@ -1,30 +1,40 @@
 ﻿using Editor.GameProject.Models;
 using Editor.Utils;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Editor.GameProject.ViewModels
 {
-    class OpenProjectViewModel : ViewModelBase
+    public class OpenProjectViewModel : ViewModelBase
     {
-        private static readonly string _applicationDataPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\EvreninMotoru\";
-        private static readonly string _projectDataPath;
-        private static readonly ObservableCollection<ProjectData> _projects = new ObservableCollection<ProjectData>();
-        public static ReadOnlyObservableCollection<ProjectData> Projects { get; }
+        private readonly string _applicationDataPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\EvreninMotoru\";
+        private readonly string _projectDataPath;
+        private readonly ObservableCollection<ProjectData> _projects = new ObservableCollection<ProjectData>();
+        public ReadOnlyObservableCollection<ProjectData> Projects { get; }
 
-        static OpenProjectViewModel()
+        private string _message;
+        public string Message
+        {
+            get => _message;
+            set
+            {
+                if (_message != value)
+                {
+                    _message = value;
+                    OnPropertyChanged(nameof(Message));
+                }
+            }
+        }
+        public OpenProjectViewModel()
         {
             try
             {
                 if (!Directory.Exists(_applicationDataPath))
                 {
-                    Directory.CreateDirectory(_applicationDataPath);              
+                    Directory.CreateDirectory(_applicationDataPath);
                 }
 
                 _projectDataPath = $@"{_applicationDataPath}ProjectData.xml";
@@ -39,7 +49,7 @@ namespace Editor.GameProject.ViewModels
             }
         }
 
-        public static ProjectData Open(ProjectData projectData)
+        public ProjectData Open(ProjectData projectData)
         {
             ReadProjectData();
 
@@ -60,7 +70,20 @@ namespace Editor.GameProject.ViewModels
             return null;
         }
 
-        private static void ReadProjectData()
+        public void DeleteProject(ProjectData projectData)
+        {
+            ReadProjectData();
+
+            var project = _projects.FirstOrDefault(_ => _.FullPath == projectData.FullPath && _.ProjectName == projectData.ProjectName);
+            if (project != null)
+            {
+                _projects.Remove(project);
+                WriteProjectData();
+                Message = "Project has been deleted";
+            }
+        }
+
+        private void ReadProjectData()
         {
             if (File.Exists(_projectDataPath))
             {
@@ -79,12 +102,14 @@ namespace Editor.GameProject.ViewModels
             }
         }
 
-        private static void WriteProjectData()
+        private void WriteProjectData()
         {
             var projects = _projects.OrderBy(x => x.Date).ToList();
             var projectDataList = new ProjectDataList() { Projects = projects };
 
             Serializer.ToFile(projectDataList, _projectDataPath);
         }
+
+
     }
 }

@@ -8,15 +8,20 @@
         mc:Ignorable="d"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
-        Title="Project browser for Evrenin motoru" Height="560" Width="800"
+        Title="Project browser for Evrenin motoru" 
+        Height="560" 
+        Width="800"
         Background="{DynamicResource MainBackgroudBrush}">
 
     <Grid>
+        <!--Grid defs-->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition />
         </Grid.RowDefinitions>
+        <!--Grid defs-->
 
+        <!--Buttons-->
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,25,0,15" >
             <ToggleButton 
                 Content="Open project" 
@@ -38,19 +43,18 @@
                 Background="{DynamicResource CreateProjectBackgroundBrush}"
                 Style="{DynamicResource RoundButton}"
                 Click="OnToggleButton_Click"
-                 IsChecked="False"
-                />          
+                IsChecked="False"
+                />
         </StackPanel>
-        
-        <StackPanel Orientation="Horizontal" Grid.Row="1" Name="projectBrowserStackPanel">
-            <local:OpenProjectView />
-            <local:NewProjectView />
-        </StackPanel>
+        <!--Buttons-->
 
+        <!--LocalViews-->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Name="projectBrowserStackPanel">
+            <local:OpenProjectView/>
+            <local:NewProjectView/>
+        </StackPanel>
+        <!--LocalViews-->
     </Grid>
-
-
-
 </Window>
     
     
