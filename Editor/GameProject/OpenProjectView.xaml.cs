@@ -34,7 +34,6 @@ namespace Editor.GameProject
 
         private void OnDelete_Click(object sender, RoutedEventArgs e)
         {
-            var viewModel = DataContext as OpenProjectViewModel;
             var listItem = projectsListBox.SelectedItem as ProjectData;
 
             if (ShowWarningMessageBox() == MessageBoxResult.OK)
