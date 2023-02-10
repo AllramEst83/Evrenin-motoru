@@ -18,7 +18,7 @@
             <StackPanel  Orientation="Horizontal" HorizontalAlignment="Center">
                 <ListBox 
                     Name="projectsListBox"
-                    ItemsSource="{Binding Projects}" 
+                    ItemsSource="{Binding Projects}"           
                     Width="195" 
                     Height="250" 
                     Margin="0,30,0,0" 
@@ -47,9 +47,7 @@
                 </Border>
             </StackPanel>
             <!--List of projects-->
-            <!--Message-->
-            <TextBlock Text="{Binding UserMessage}" Margin="0,15,0,0" HorizontalAlignment="Center" Foreground="Green"/>
-            <!--Message-->
+
             <!--Buttons-->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,60,0,0">
                 <Button 
@@ -57,7 +55,9 @@
                     Width="95" 
                     Height="30" 
                     Style="{DynamicResource RoundButton}" 
-                    IsDefault="True"/>
+                    IsDefault="True"
+                    Click="OnOpen_Click"
+                    Background="{DynamicResource OpenProjectButtonBackgroundBrush}"/>
                 <Button 
                     Content="Exit" 
                     Width="95" 
@@ -73,6 +73,7 @@
                     Margin="30,0,0,0"
                     Style="{DynamicResource RoundButton}"
                     Click="OnDelete_Click"
+                    Background="{DynamicResource DeleteButtonProjectBackgroundBrush}"
                     />
             </StackPanel>
             <!--Buttons-->

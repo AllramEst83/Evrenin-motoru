@@ -12,22 +12,21 @@ namespace Editor.GameProject.ViewModels
     {
         private readonly string _applicationDataPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\EvreninMotoru\";
         private readonly string _projectDataPath;
-        private readonly ObservableCollection<ProjectData> _projects = new ObservableCollection<ProjectData>();
-        public ReadOnlyObservableCollection<ProjectData> Projects { get; }
 
-        private string _message;
-        public string Message
+        private ObservableCollection<ProjectData> _projects = new();
+        public ObservableCollection<ProjectData> Projects
         {
-            get => _message;
+            get { return _projects; }
             set
             {
-                if (_message != value)
+                if (_projects != value)
                 {
-                    _message = value;
-                    OnPropertyChanged(nameof(Message));
+                    _projects = value;
+                    OnPropertyChanged(nameof(Projects));
                 }
             }
         }
+
         public OpenProjectViewModel()
         {
             try
@@ -38,7 +37,7 @@ namespace Editor.GameProject.ViewModels
                 }
 
                 _projectDataPath = $@"{_applicationDataPath}ProjectData.xml";
-                Projects = new ReadOnlyObservableCollection<ProjectData>(_projects);
+                Projects = new ObservableCollection<ProjectData>();
                 ReadProjectData();
             }
             catch (Exception ex)
@@ -53,7 +52,7 @@ namespace Editor.GameProject.ViewModels
         {
             ReadProjectData();
 
-            var project = _projects.FirstOrDefault(x => x.FullPath == projectData.FullPath);
+            var project = Projects.FirstOrDefault(x => x.FullPath == projectData.FullPath);
             if (project != null)
             {
                 project.Date = DateTime.Now;
@@ -62,7 +61,7 @@ namespace Editor.GameProject.ViewModels
             {
                 project = projectData;
                 project.Date = DateTime.Now;
-                _projects.Add(project);
+                Projects.Add(project);
             }
 
             WriteProjectData();
@@ -74,12 +73,18 @@ namespace Editor.GameProject.ViewModels
         {
             ReadProjectData();
 
-            var project = _projects.FirstOrDefault(_ => _.FullPath == projectData.FullPath && _.ProjectName == projectData.ProjectName);
-            if (project != null)
+            if (Directory.Exists(projectData.ProjectPath))
             {
-                _projects.Remove(project);
+                Directory.Delete(projectData.ProjectPath, true);
+            }
+
+            var successfullyDeleted = Projects
+                .Remove(Projects
+                .Where(_ => _.FullPath == projectData.FullPath && _.ProjectName == projectData.ProjectName).Single());
+
+            if (successfullyDeleted)
+            {
                 WriteProjectData();
-                Message = "Project has been deleted";
             }
         }
 
@@ -88,7 +93,7 @@ namespace Editor.GameProject.ViewModels
             if (File.Exists(_projectDataPath))
             {
                 var projects = Serializer.FromFile<ProjectDataList>(_projectDataPath).Projects.OrderBy(x => x.Date);
-                _projects.Clear();
+                Projects.Clear();
 
                 foreach (var project in projects)
                 {
@@ -96,7 +101,7 @@ namespace Editor.GameProject.ViewModels
                     {
                         project.Icon = File.ReadAllBytes($@"{project.ProjectPath}\.Evrenin\Icon.png");
                         project.Screenshot = File.ReadAllBytes($@"{project.ProjectPath}\.Evrenin\Screenshot.png");
-                        _projects.Add(project);
+                        Projects.Add(project);
                     }
                 }
             }
@@ -104,7 +109,7 @@ namespace Editor.GameProject.ViewModels
 
         private void WriteProjectData()
         {
-            var projects = _projects.OrderBy(x => x.Date).ToList();
+            var projects = Projects.OrderBy(x => x.Date).ToList();
             var projectDataList = new ProjectDataList() { Projects = projects };
 
             Serializer.ToFile(projectDataList, _projectDataPath);

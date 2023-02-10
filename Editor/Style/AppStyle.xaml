@@ -12,9 +12,12 @@
     
    <!--CustomBorderRadius-->
     <!--Colors-->
-    <Color x:Key="MainBackgroudColor">#c7ecee</Color>
-    <Color x:Key="OpenProjectBackgroundColor">#f6e58d</Color>
-    <Color x:Key="CreateProjectBackgroundColro">#badc58</Color>
+    <Color x:Key="MainBackgroudColor">#7efff5</Color>
+    <Color x:Key="OpenProjectBackgroundColor">#fffa65</Color>
+    <Color x:Key="CreateProjectBackgroundColor">#ffb8b8</Color>
+    
+    <Color x:Key="DeleteProjectButtonBackgroundColor">#ff3838</Color>
+    <Color x:Key="OpenProjectButtonBackgroundColor">#32ff7e</Color>
 
     <!--Colors-->
     <!--Brushes-->
@@ -25,7 +28,13 @@
                    Color="{StaticResource OpenProjectBackgroundColor}" />
 
     <SolidColorBrush x:Key="CreateProjectBackgroundBrush"
-                   Color="{StaticResource CreateProjectBackgroundColro}" />
+                   Color="{StaticResource CreateProjectBackgroundColor}" />
+    
+    <SolidColorBrush x:Key="DeleteButtonProjectBackgroundBrush"
+                   Color="{StaticResource DeleteProjectButtonBackgroundColor}" />
+
+    <SolidColorBrush x:Key="OpenProjectButtonBackgroundBrush"
+                   Color="{StaticResource OpenProjectButtonBackgroundColor}" />
     <!--Brushes-->
 
 </ResourceDictionary>

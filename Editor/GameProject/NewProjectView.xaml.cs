@@ -35,26 +35,29 @@ namespace Editor.GameProject
 
         private void OnCreate_Button_Click(object sender, RoutedEventArgs e)
         {
-            var viewModel = DataContext as NewProjectViewModel;
-            var projectPath = viewModel.CreateProject(templateListBox.SelectedItem as ProjectTemplate);
-
-            bool dialogResult = false;
-            var window = Window.GetWindow(this);
-            if (!string.IsNullOrEmpty(projectPath))
+            if (templateListBox.SelectedItem != null)
             {
-                var projectData = new ProjectData()
+                var viewModel = DataContext as NewProjectViewModel;
+                var projectPath = viewModel.CreateProject(templateListBox.SelectedItem as ProjectTemplate);
+
+                bool dialogResult = false;
+                var window = Window.GetWindow(this);
+                if (!string.IsNullOrEmpty(projectPath))
                 {
-                    ProjectName = viewModel.ProjectName,
-                    ProjectPath = projectPath,
-                };
+                    var projectData = new ProjectData()
+                    {
+                        ProjectName = viewModel.ProjectName,
+                        ProjectPath = projectPath,
+                    };
 
-                OpenProjectViewModel openProjectViewModel = new OpenProjectViewModel();
-                var project = openProjectViewModel.Open(projectData);
-                dialogResult = true;
-            }
+                    OpenProjectViewModel openProjectViewModel = new OpenProjectViewModel();
+                    var project = openProjectViewModel.Open(projectData);
+                    dialogResult = true;
+                }
 
-            window.DialogResult = dialogResult;
-            window.Close();
+                window.DialogResult = dialogResult;
+                window.Close();
+            }            
         }
     }
 }

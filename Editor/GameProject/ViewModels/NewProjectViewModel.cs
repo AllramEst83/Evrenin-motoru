@@ -11,7 +11,7 @@ namespace Editor.GameProject.ViewModels
 {
     public class NewProjectViewModel : ViewModelBase
     {
-        private ObservableCollection<ProjectTemplate> _projectTemplates = new ObservableCollection<ProjectTemplate>();
+        private ObservableCollection<ProjectTemplate> _projectTemplates = new();
         public ReadOnlyObservableCollection<ProjectTemplate> ProjectTemplates { get; }
         //TODO: Get path from the installation location 
         private readonly string _template = @"..\..\Editor\ProjectTemplates";
@@ -76,6 +76,25 @@ namespace Editor.GameProject.ViewModels
         }
 
 
+        public NewProjectViewModel()
+        {
+            ProjectTemplates = new ReadOnlyObservableCollection<ProjectTemplate>(_projectTemplates);
+
+            try
+            {
+                GetProjectTemplates();
+                ValidateProjectPath();
+
+            }
+            catch (ReadFromFileException ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+        }
 
         public string CreateProject(ProjectTemplate projectTemplate)
         {
@@ -121,26 +140,6 @@ namespace Editor.GameProject.ViewModels
                 Debug.WriteLine(ex.Message);
                 //TODO - Logging
                 return string.Empty;
-            }
-        }
-
-        public NewProjectViewModel()
-        {
-            ProjectTemplates = new ReadOnlyObservableCollection<ProjectTemplate>(_projectTemplates);
-
-            try
-            {
-                GetProjectTemplates();
-                ValidateProjectPath();
-
-            }
-            catch (ReadFromFileException ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
             }
         }
 
