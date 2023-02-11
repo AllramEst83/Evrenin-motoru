@@ -1,5 +1,6 @@
 ﻿using Editor.GameProject.Models;
 using Editor.GameProject.ViewModels;
+using Editor.Repositories;
 using Microsoft.Win32;
 using System.IO;
 using System.Windows;
@@ -12,9 +13,12 @@ namespace Editor.GameProject
     /// </summary>
     public partial class NewProjectView : UserControl
     {
-        public NewProjectView()
+        public IFileRepository fileRepository { get; }
+
+        public NewProjectView(IFileRepository _fileRepository)
         {
             InitializeComponent();
+            fileRepository = _fileRepository;
         }
 
         private void OnExit_Click(object sender, RoutedEventArgs e)
@@ -50,8 +54,13 @@ namespace Editor.GameProject
                         ProjectPath = projectPath,
                     };
 
-                    OpenProjectViewModel openProjectViewModel = new OpenProjectViewModel();
-                    var project = openProjectViewModel.Open(projectData);
+                    //Will reset dynamic properties
+                    var projects = fileRepository.GetProjectData(projectPath);
+
+                    //Move to Service
+                    var listWithNewProject = fileRepository.CreateOrAddProject(projectData, projects);
+                    fileRepository.SaveProjectData("", listWithNewProject);
+
                     dialogResult = true;
                 }
 

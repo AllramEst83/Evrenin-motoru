@@ -1,17 +1,59 @@
 ﻿using Editor.GameProject.Models;
+using Editor.Handlers;
+using Editor.Repositories;
 using Editor.Utils;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Windows;
+using System.Windows.Documents;
+using System.Windows.Input;
 
 namespace Editor.GameProject.ViewModels
 {
     public class OpenProjectViewModel : ViewModelBase
     {
+        #region Fields
         private readonly string _applicationDataPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\EvreninMotoru\";
         private readonly string _projectDataPath;
+        #endregion
+
+        #region Properties
+        public bool CanExecute
+        {
+            get
+            {
+                return SelectedItem != null;
+            }
+        }
+        #endregion
+
+        #region Dynamic properties
+        private ICommand _deleteClickCommand;
+        public ICommand DeleteClickCommand
+        {
+            get
+            {
+                return _deleteClickCommand ??= new CommandHandler(DeleteProject, () => CanExecute);
+            }
+        }
+
+        private ProjectData _selectedItem = new();
+        public ProjectData SelectedItem
+        {
+            get { return _selectedItem; }
+            set
+            {
+                if (_selectedItem != value)
+                {
+                    _selectedItem = value;
+                    OnPropertyChanged(nameof(SelectedItem));
+                }
+            }
+        }
 
         private ObservableCollection<ProjectData> _projects = new();
         public ObservableCollection<ProjectData> Projects
@@ -27,8 +69,13 @@ namespace Editor.GameProject.ViewModels
             }
         }
 
-        public OpenProjectViewModel()
+        public IFileRepository fileRepository { get; }
+        #endregion
+
+
+        public OpenProjectViewModel(IFileRepository _fileRepository)
         {
+            fileRepository = _fileRepository;
             try
             {
                 if (!Directory.Exists(_applicationDataPath))
@@ -42,79 +89,78 @@ namespace Editor.GameProject.ViewModels
             }
             catch (Exception ex)
             {
-
                 Debug.WriteLine(ex.Message);
                 //TODO: Logging
             }
         }
 
+        #region Public methods
+        // Bind To ButtonCommand?
         public ProjectData Open(ProjectData projectData)
         {
             ReadProjectData();
 
-            var project = Projects.FirstOrDefault(x => x.FullPath == projectData.FullPath);
-            if (project != null)
-            {
-                project.Date = DateTime.Now;
-            }
-            else
-            {
-                project = projectData;
-                project.Date = DateTime.Now;
-                Projects.Add(project);
-            }
+            var listOfProjects = fileRepository.CreateOrAddProject(projectData, Projects.ToList());
 
+            RefreshProjects(listOfProjects);
             WriteProjectData();
 
             return null;
         }
 
-        public void DeleteProject(ProjectData projectData)
+        public void DeleteProject(object arg)
         {
-            ReadProjectData();
-
-            if (Directory.Exists(projectData.ProjectPath))
+            if (arg == null)
             {
-                Directory.Delete(projectData.ProjectPath, true);
+                return;
             }
 
-            var successfullyDeleted = Projects
-                .Remove(Projects
-                .Where(_ => _.FullPath == projectData.FullPath && _.ProjectName == projectData.ProjectName).Single());
+            var projectData = arg as ProjectData;
 
-            if (successfullyDeleted)
+            (string message, string header, MessageBoxButton button, MessageBoxImage messageBoxImage) = MessageBoxHelper.GetMessageBoxSettings(projectData);
+            if (MessageBox.Show(message, header, button, messageBoxImage) == MessageBoxResult.Yes)
             {
-                WriteProjectData();
-            }
-        }
 
-        private void ReadProjectData()
-        {
-            if (File.Exists(_projectDataPath))
-            {
-                var projects = Serializer.FromFile<ProjectDataList>(_projectDataPath).Projects.OrderBy(x => x.Date);
-                Projects.Clear();
-
-                foreach (var project in projects)
+                if (Directory.Exists(projectData.ProjectPath))
                 {
-                    if (File.Exists(project.FullPath))
-                    {
-                        project.Icon = File.ReadAllBytes($@"{project.ProjectPath}\.Evrenin\Icon.png");
-                        project.Screenshot = File.ReadAllBytes($@"{project.ProjectPath}\.Evrenin\Screenshot.png");
-                        Projects.Add(project);
-                    }
+                    Directory.Delete(projectData.ProjectPath, true);
+                }
+
+                ReadProjectData();
+
+                (var successfullyDeleted, var updatedList) = fileRepository.DeleteProject(projectData, Projects.ToList());
+
+                if (successfullyDeleted)
+                {
+                    RefreshProjects(updatedList);
+                    WriteProjectData();
                 }
             }
+        }
+        #endregion
+
+        #region Private methods
+        
+        private void RefreshProjects(List<ProjectData> listOfProjects)
+        {
+            Projects.Clear();
+            listOfProjects.ForEach(x =>
+            {
+                Projects.Add(x);
+            });
+        }
+        
+        private void ReadProjectData()
+        {
+            var listOfProjects = fileRepository.GetProjectData(_projectDataPath);
+
+            RefreshProjects(listOfProjects);
         }
 
         private void WriteProjectData()
         {
-            var projects = Projects.OrderBy(x => x.Date).ToList();
-            var projectDataList = new ProjectDataList() { Projects = projects };
-
-            Serializer.ToFile(projectDataList, _projectDataPath);
+            fileRepository.SaveProjectData(_projectDataPath, Projects.ToList());
         }
-
-
+        #endregion
     }
 }
