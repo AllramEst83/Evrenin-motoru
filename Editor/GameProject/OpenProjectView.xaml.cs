@@ -3,6 +3,9 @@ using Editor.GameProject.ViewModels;
 using System.Reflection.PortableExecutable;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace Editor.GameProject
 {
@@ -11,12 +14,11 @@ namespace Editor.GameProject
     /// </summary>
     public partial class OpenProjectView : UserControl
     {
-        OpenProjectViewModel openProjectViewModel;
         public OpenProjectView()
         {
             InitializeComponent();
-            openProjectViewModel = (OpenProjectViewModel)DataContext;
 
+            DataContext = App.AppHost?.Services.GetRequiredService<OpenProjectViewModel>();
         }
 
         private void OnExit_Click(object sender, RoutedEventArgs e)

@@ -50,8 +50,8 @@
 
         <!--LocalViews-->
         <StackPanel Grid.Row="1" Orientation="Horizontal" Name="projectBrowserStackPanel">
-            <local:OpenProjectView/>
-            <local:NewProjectView/>
+            <local:OpenProjectView />
+            <local:NewProjectView />
         </StackPanel>
         <!--LocalViews-->
     </Grid>

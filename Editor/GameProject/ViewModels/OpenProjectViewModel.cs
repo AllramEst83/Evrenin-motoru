@@ -16,11 +16,6 @@ namespace Editor.GameProject.ViewModels
 {
     public class OpenProjectViewModel : ViewModelBase
     {
-        #region Fields
-        private readonly string _applicationDataPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\EvreninMotoru\";
-        private readonly string _projectDataPath;
-        #endregion
-
         #region Properties
         public bool CanExecute
         {
@@ -72,18 +67,16 @@ namespace Editor.GameProject.ViewModels
         public IFileRepository fileRepository { get; }
         #endregion
 
-
         public OpenProjectViewModel(IFileRepository _fileRepository)
         {
             fileRepository = _fileRepository;
             try
             {
-                if (!Directory.Exists(_applicationDataPath))
+                if (!Directory.Exists(Constants.ApplicationDataPath))
                 {
-                    Directory.CreateDirectory(_applicationDataPath);
+                    Directory.CreateDirectory(Constants.ApplicationDataPath);
                 }
 
-                _projectDataPath = $@"{_applicationDataPath}ProjectData.xml";
                 Projects = new ObservableCollection<ProjectData>();
                 ReadProjectData();
             }
@@ -152,14 +145,14 @@ namespace Editor.GameProject.ViewModels
         
         private void ReadProjectData()
         {
-            var listOfProjects = fileRepository.GetProjectData(_projectDataPath);
+            var listOfProjects = fileRepository.GetProjectData(Constants.ProjectDataPath);
 
             RefreshProjects(listOfProjects);
         }
 
         private void WriteProjectData()
         {
-            fileRepository.SaveProjectData(_projectDataPath, Projects.ToList());
+            fileRepository.SaveProjectData(Constants.ApplicationDataPath, Projects.ToList());
         }
         #endregion
     }

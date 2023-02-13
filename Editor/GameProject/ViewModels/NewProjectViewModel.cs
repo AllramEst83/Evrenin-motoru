@@ -1,21 +1,89 @@
 ﻿using Editor.Exceptions;
 using Editor.GameProject.Models;
+using Editor.Handlers;
+using Editor.Repositories;
 using Editor.Utils;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Windows;
+using System.Windows.Input;
 
 namespace Editor.GameProject.ViewModels
 {
     public class NewProjectViewModel : ViewModelBase
     {
+        public void CloseWindow()
+        {
+
+        }
+        private ICommand _createlickCommand;
+        public ICommand CreateClickCommand
+        {
+            get
+            {
+                return _createlickCommand ??= new CommandHandler(CreateButtonCommand, () => CanExecute);
+            }
+        }
+
+        public bool CanExecute
+        {
+            get
+            {
+                return ValidateProjectPath() == true && SelectedItem != null && IsValid;
+            }
+        }
+        public void CreateButtonCommand(object args)
+        {
+            var newProjectView = args as NewProjectView;
+
+            var projectPath = CreateProject(SelectedItem);
+
+            var dialogResult = false;
+
+            if (!string.IsNullOrEmpty(projectPath))
+            {
+                var projectData = new ProjectData()
+                {
+                    ProjectName = ProjectName,
+                    ProjectPath = projectPath,
+                };
+
+                var projects = fileRepository.GetProjectData(Constants.ProjectDataPath);
+                var listWithNewProject = fileRepository.CreateOrAddProject(projectData, projects);
+                fileRepository.SaveProjectData(Constants.ProjectDataPath, listWithNewProject);
+
+                dialogResult = true;
+            }
+
+            var window = Window.GetWindow(newProjectView);
+            window.DialogResult = dialogResult;
+            window.Close();
+
+        }
+
+        private ProjectTemplate _selectedItem = new();
+        public ProjectTemplate SelectedItem
+        {
+            get { return _selectedItem; }
+            set
+            {
+                if (_selectedItem != value)
+                {
+                    _selectedItem = value;
+                    OnPropertyChanged(nameof(SelectedItem));
+                }
+            }
+        }
         private ObservableCollection<ProjectTemplate> _projectTemplates = new();
         public ReadOnlyObservableCollection<ProjectTemplate> ProjectTemplates { get; }
+
+
         //TODO: Get path from the installation location 
         private readonly string _template = @"..\..\Editor\ProjectTemplates";
-
 
         private string _errorMessage;
         public string ErrorMessage
@@ -75,10 +143,12 @@ namespace Editor.GameProject.ViewModels
             }
         }
 
+        public IFileRepository fileRepository { get; }
 
-        public NewProjectViewModel()
+        public NewProjectViewModel(IFileRepository _fileRepository)
         {
             ProjectTemplates = new ReadOnlyObservableCollection<ProjectTemplate>(_projectTemplates);
+            fileRepository = _fileRepository;
 
             try
             {
@@ -195,6 +265,10 @@ namespace Editor.GameProject.ViewModels
             else if (Directory.Exists(path) && Directory.EnumerateFileSystemEntries(path).Any())
             {
                 ErrorMessage = "Selected project folder already exists an is not empty.";
+            }
+            else if (SelectedItem.ProjectType == null)
+            {
+                ErrorMessage = "Please select a template.";
             }
             else
             {

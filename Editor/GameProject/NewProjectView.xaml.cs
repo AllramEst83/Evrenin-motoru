@@ -1,6 +1,7 @@
 ﻿using Editor.GameProject.Models;
 using Editor.GameProject.ViewModels;
 using Editor.Repositories;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using System.IO;
 using System.Windows;
@@ -13,12 +14,12 @@ namespace Editor.GameProject
     /// </summary>
     public partial class NewProjectView : UserControl
     {
-        public IFileRepository fileRepository { get; }
 
-        public NewProjectView(IFileRepository _fileRepository)
+        public NewProjectView()
         {
             InitializeComponent();
-            fileRepository = _fileRepository;
+            DataContext = App.AppHost?.Services.GetRequiredService<NewProjectViewModel>();
+
         }
 
         private void OnExit_Click(object sender, RoutedEventArgs e)
@@ -35,38 +36,6 @@ namespace Editor.GameProject
                 FileInfo fInfo = new FileInfo(openFileDialog.FileName);
                 filePathTxt.Text = fInfo.DirectoryName;
             }
-        }
-
-        private void OnCreate_Button_Click(object sender, RoutedEventArgs e)
-        {
-            if (templateListBox.SelectedItem != null)
-            {
-                var viewModel = DataContext as NewProjectViewModel;
-                var projectPath = viewModel.CreateProject(templateListBox.SelectedItem as ProjectTemplate);
-
-                bool dialogResult = false;
-                var window = Window.GetWindow(this);
-                if (!string.IsNullOrEmpty(projectPath))
-                {
-                    var projectData = new ProjectData()
-                    {
-                        ProjectName = viewModel.ProjectName,
-                        ProjectPath = projectPath,
-                    };
-
-                    //Will reset dynamic properties
-                    var projects = fileRepository.GetProjectData(projectPath);
-
-                    //Move to Service
-                    var listWithNewProject = fileRepository.CreateOrAddProject(projectData, projects);
-                    fileRepository.SaveProjectData("", listWithNewProject);
-
-                    dialogResult = true;
-                }
-
-                window.DialogResult = dialogResult;
-                window.Close();
-            }            
         }
     }
 }
