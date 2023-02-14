@@ -25,10 +25,5 @@ namespace Editor.GameProject
         {
             Application.Current.Shutdown();
         }
-
-        private void OnOpen_Click(object sender, RoutedEventArgs e)
-        {
-            //TODO
-        }
     }
 }

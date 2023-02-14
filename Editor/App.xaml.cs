@@ -1,6 +1,7 @@
 ﻿using Editor.GameProject;
 using Editor.GameProject.ViewModels;
 using Editor.Repositories;
+using Editor.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -30,6 +31,7 @@ public partial class App : Application
         .ConfigureServices((hostContext, services) =>
         {
             services.AddTransient<IFileRepository, FileRepository>();
+            services.AddTransient<IProjectService, ProjectService>();
             services.AddSingleton<NewProjectViewModel>();
             services.AddSingleton<OpenProjectViewModel>();
             services.AddSingleton<NewProjectView>();

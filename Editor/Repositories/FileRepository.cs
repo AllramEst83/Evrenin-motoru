@@ -38,7 +38,7 @@ namespace Editor.Repositories
             var projects = projectsToSave.OrderBy(x => x.Date).ToList();
             var projectDataList = new ProjectDataList() { Projects = projects };
 
-            Serializer.ToFile(projectDataList, projectDataPathList);
+            Serializer.ToFile(projectDataList, Constants.ProjectDataPath);
         }
 
         public List<ProjectData> CreateOrAddProject(ProjectData projectData, List<ProjectData> projects)

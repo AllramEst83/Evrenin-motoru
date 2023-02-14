@@ -8,7 +8,9 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 
@@ -16,56 +18,7 @@ namespace Editor.GameProject.ViewModels
 {
     public class OpenProjectViewModel : ViewModelBase
     {
-        #region Properties
-        public bool CanExecute
-        {
-            get
-            {
-                return SelectedItem != null;
-            }
-        }
-        #endregion
-
-        #region Dynamic properties
-        private ICommand _deleteClickCommand;
-        public ICommand DeleteClickCommand
-        {
-            get
-            {
-                return _deleteClickCommand ??= new CommandHandler(DeleteProject, () => CanExecute);
-            }
-        }
-
-        private ProjectData _selectedItem = new();
-        public ProjectData SelectedItem
-        {
-            get { return _selectedItem; }
-            set
-            {
-                if (_selectedItem != value)
-                {
-                    _selectedItem = value;
-                    OnPropertyChanged(nameof(SelectedItem));
-                }
-            }
-        }
-
-        private ObservableCollection<ProjectData> _projects = new();
-        public ObservableCollection<ProjectData> Projects
-        {
-            get { return _projects; }
-            set
-            {
-                if (_projects != value)
-                {
-                    _projects = value;
-                    OnPropertyChanged(nameof(Projects));
-                }
-            }
-        }
-
         public IFileRepository fileRepository { get; }
-        #endregion
 
         public OpenProjectViewModel(IFileRepository _fileRepository)
         {
@@ -87,38 +40,88 @@ namespace Editor.GameProject.ViewModels
             }
         }
 
-        #region Public methods
-        // Bind To ButtonCommand?
-        public ProjectData Open(ProjectData projectData)
+        #region Properties
+        public bool CanExecute
         {
-            ReadProjectData();
+            get
+            {
+                return OpenSelectedItem?.ProjectName != null && OpenSelectedItem.ProjectPath != null;
+            }
+        }
+        #endregion
 
-            var listOfProjects = fileRepository.CreateOrAddProject(projectData, Projects.ToList());
+        #region Dynamic properties
 
-            RefreshProjects(listOfProjects);
-            WriteProjectData();
-
-            return null;
+        private ProjectData _openSelectedItem = new();
+        public ProjectData OpenSelectedItem
+        {
+            get { return _openSelectedItem; }
+            set
+            {
+                if (_openSelectedItem != value)
+                {
+                    _openSelectedItem = value;
+                    OnPropertyChanged(nameof(OpenSelectedItem));
+                }
+            }
         }
 
-        public void DeleteProject(object arg)
+        private ObservableCollection<ProjectData> _projects = new();
+        public ObservableCollection<ProjectData> Projects
         {
-            if (arg == null)
+            get { return _projects; }
+            set
+            {
+                if (_projects != value)
+                {
+                    _projects = value;
+                    OnPropertyChanged(nameof(Projects));
+                }
+            }
+        }  
+        #endregion
+
+        #region ButtonCommands
+
+        private ICommand _deleteClickCommand;
+        public ICommand DeleteClickCommand
+        {
+            get
+            {
+                return _deleteClickCommand ??= new CommandHandler(DeleteProject, () => CanExecute);
+            }
+        }
+
+        private ICommand _openProjectButtonCommand;
+        public ICommand OpenProjectCommand
+        {
+            get
+            {
+                return _openProjectButtonCommand ??= new CommandHandler(OpenProject, () => CanExecute);
+            }
+        }
+
+        #endregion
+
+        #region Public methods
+
+        public void DeleteProject(object args)
+        {
+            if (args == null)
             {
                 return;
             }
 
-            var projectData = arg as ProjectData;
+            if (OpenSelectedItem == null)
+            {
+                return;
+            }
 
+            var projectData = args as ProjectData;
             (string message, string header, MessageBoxButton button, MessageBoxImage messageBoxImage) = MessageBoxHelper.GetMessageBoxSettings(projectData);
+            
             if (MessageBox.Show(message, header, button, messageBoxImage) == MessageBoxResult.Yes)
             {
-
-                if (Directory.Exists(projectData.ProjectPath))
-                {
-                    Directory.Delete(projectData.ProjectPath, true);
-                }
-
                 ReadProjectData();
 
                 (var successfullyDeleted, var updatedList) = fileRepository.DeleteProject(projectData, Projects.ToList());
@@ -134,6 +137,32 @@ namespace Editor.GameProject.ViewModels
 
         #region Private methods
         
+        private void OpenProject(object args)
+        {
+            if (args == null)
+            {
+                return;
+            }
+
+            if (OpenSelectedItem == null)
+            {
+                return;
+            }
+
+            var openProjectView = args as OpenProjectView;
+            ReadProjectData();
+
+            var listOfProjects = fileRepository.CreateOrAddProject(OpenSelectedItem, Projects.ToList());
+
+            RefreshProjects(listOfProjects);
+            WriteProjectData();
+
+            bool dialogResult = true;
+            var window = Window.GetWindow(openProjectView);
+            window.DialogResult = dialogResult;
+            window.Close();
+        }
+
         private void RefreshProjects(List<ProjectData> listOfProjects)
         {
             Projects.Clear();

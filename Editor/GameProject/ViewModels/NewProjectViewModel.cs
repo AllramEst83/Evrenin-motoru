@@ -3,7 +3,6 @@ using Editor.GameProject.Models;
 using Editor.Handlers;
 using Editor.Repositories;
 using Editor.Utils;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -16,54 +15,34 @@ namespace Editor.GameProject.ViewModels
 {
     public class NewProjectViewModel : ViewModelBase
     {
-        public void CloseWindow()
-        {
+        private ObservableCollection<ProjectTemplate> _projectTemplates = new();
+        public ReadOnlyObservableCollection<ProjectTemplate> ProjectTemplates { get; }
+        //TODO: Get path from the installation location 
+        private readonly string _template = @"..\..\Editor\ProjectTemplates";
+        public IFileRepository fileRepository { get; }
 
-        }
-        private ICommand _createlickCommand;
-        public ICommand CreateClickCommand
+        public NewProjectViewModel(IFileRepository _fileRepository)
         {
-            get
+            ProjectTemplates = new ReadOnlyObservableCollection<ProjectTemplate>(_projectTemplates);
+            fileRepository = _fileRepository;
+
+            try
             {
-                return _createlickCommand ??= new CommandHandler(CreateButtonCommand, () => CanExecute);
+                GetProjectTemplates();
+                ValidateProjectPath();
+
+            }
+            catch (ReadFromFileException ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
             }
         }
 
-        public bool CanExecute
-        {
-            get
-            {
-                return ValidateProjectPath() == true && SelectedItem != null && IsValid;
-            }
-        }
-        public void CreateButtonCommand(object args)
-        {
-            var newProjectView = args as NewProjectView;
-
-            var projectPath = CreateProject(SelectedItem);
-
-            var dialogResult = false;
-
-            if (!string.IsNullOrEmpty(projectPath))
-            {
-                var projectData = new ProjectData()
-                {
-                    ProjectName = ProjectName,
-                    ProjectPath = projectPath,
-                };
-
-                var projects = fileRepository.GetProjectData(Constants.ProjectDataPath);
-                var listWithNewProject = fileRepository.CreateOrAddProject(projectData, projects);
-                fileRepository.SaveProjectData(Constants.ProjectDataPath, listWithNewProject);
-
-                dialogResult = true;
-            }
-
-            var window = Window.GetWindow(newProjectView);
-            window.DialogResult = dialogResult;
-            window.Close();
-
-        }
+        #region DynamicVariables
 
         private ProjectTemplate _selectedItem = new();
         public ProjectTemplate SelectedItem
@@ -78,12 +57,6 @@ namespace Editor.GameProject.ViewModels
                 }
             }
         }
-        private ObservableCollection<ProjectTemplate> _projectTemplates = new();
-        public ReadOnlyObservableCollection<ProjectTemplate> ProjectTemplates { get; }
-
-
-        //TODO: Get path from the installation location 
-        private readonly string _template = @"..\..\Editor\ProjectTemplates";
 
         private string _errorMessage;
         public string ErrorMessage
@@ -99,16 +72,16 @@ namespace Editor.GameProject.ViewModels
             }
         }
 
-        private bool _isValid;
-        public bool IsValid
+        private bool _validationIsValid;
+        public bool validationIsValid
         {
-            get => _isValid;
+            get => _validationIsValid;
             set
             {
-                if (_isValid != value)
+                if (_validationIsValid != value)
                 {
-                    _isValid = value;
-                    OnPropertyChanged(nameof(IsValid));
+                    _validationIsValid = value;
+                    OnPropertyChanged(nameof(validationIsValid));
                 }
             }
         }
@@ -137,39 +110,77 @@ namespace Editor.GameProject.ViewModels
                 if (_projectPath != value)
                 {
                     _projectPath = value;
+
                     ValidateProjectPath();
                     OnPropertyChanged(nameof(ProjectPath));
                 }
             }
         }
+        #endregion
 
-        public IFileRepository fileRepository { get; }
-
-        public NewProjectViewModel(IFileRepository _fileRepository)
+        #region ButtonCommands
+        private ICommand _createlickCommand;
+        public ICommand CreateClickCommand
         {
-            ProjectTemplates = new ReadOnlyObservableCollection<ProjectTemplate>(_projectTemplates);
-            fileRepository = _fileRepository;
-
-            try
+            get
             {
-                GetProjectTemplates();
-                ValidateProjectPath();
-
-            }
-            catch (ReadFromFileException ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
+                return _createlickCommand ??= new CommandHandler(ExecuteOnCreateProject, () => CanExecute);
             }
         }
+        public bool CanExecute
+        {
+            get
+            {
+                return ValidateProjectPath() == true && SelectedItem.ProjectType != null && validationIsValid;
+            }
+        }
+        #endregion
 
-        public string CreateProject(ProjectTemplate projectTemplate)
+        #region PublicFunctions
+        public void ExecuteOnCreateProject(object args)
+        {
+            if (args == null)
+            {
+                return;
+            }
+
+            if (SelectedItem == null)
+            {
+                return;
+            }
+
+            var newProjectView = args as NewProjectView;
+            var projectPath = CreateProject(SelectedItem);
+            var dialogResult = false;
+
+            if (!string.IsNullOrEmpty(projectPath))
+            {
+                var projectData = new ProjectData()
+                {
+                    ProjectName = ProjectName,
+                    ProjectPath = projectPath,
+                };
+
+                var projects = fileRepository.GetProjectData(Constants.ProjectDataPath);
+                var listWithNewProject = fileRepository.CreateOrAddProject(projectData, projects);
+                fileRepository.SaveProjectData(Constants.ProjectDataPath, listWithNewProject);
+
+                dialogResult = true;
+            }
+
+            var window = Window.GetWindow(newProjectView);
+            window.DialogResult = dialogResult;
+            window.Close();
+
+        }
+        #endregion
+
+        #region PrivateFunction
+
+        private string CreateProject(ProjectTemplate projectTemplate)
         {
             ValidateProjectPath();
-            if (!IsValid)
+            if (!validationIsValid)
             {
                 return string.Empty;
             }
@@ -213,7 +224,7 @@ namespace Editor.GameProject.ViewModels
             }
         }
 
-        public void GetProjectTemplates()
+        private void GetProjectTemplates()
         {
             var templateFiles = Directory.GetFiles(_template, "template.xml", SearchOption.AllDirectories);
 
@@ -244,7 +255,7 @@ namespace Editor.GameProject.ViewModels
 
             var path = ProjectPath;
             path += $@"{ProjectName}";
-            IsValid = false;
+            validationIsValid = false;
 
             if (string.IsNullOrWhiteSpace(ProjectName.Trim()))
             {
@@ -264,7 +275,7 @@ namespace Editor.GameProject.ViewModels
             }
             else if (Directory.Exists(path) && Directory.EnumerateFileSystemEntries(path).Any())
             {
-                ErrorMessage = "Selected project folder already exists an is not empty.";
+                ErrorMessage = "Selected project folder or the project name already exists.";
             }
             else if (SelectedItem.ProjectType == null)
             {
@@ -273,10 +284,10 @@ namespace Editor.GameProject.ViewModels
             else
             {
                 ErrorMessage = string.Empty;
-                IsValid = true;
+                validationIsValid = true;
             }
 
-            return IsValid;
+            return validationIsValid;
         }
 
         private void EndsInProjectSeperator()
@@ -286,5 +297,6 @@ namespace Editor.GameProject.ViewModels
                 ProjectPath += @"\";
             }
         }
+        #endregion       
     }
 }
