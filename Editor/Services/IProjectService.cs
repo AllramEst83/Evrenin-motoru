@@ -1,7 +1,11 @@
-﻿namespace Editor.Services
+﻿using Editor.GameProject.Models;
+using Editor.GameProject.ViewModels;
+using System.Collections.Generic;
+
+namespace Editor.Services
 {
     public interface IProjectService
     {
-        void OpenProject();
+        (ProjectViewModel, List<ProjectData>) CreateOrAddProject(ProjectData projectData, List<ProjectData> projects);
     }
 }

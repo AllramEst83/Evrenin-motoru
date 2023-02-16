@@ -1,6 +1,7 @@
 ﻿using Editor.GameProject.Models;
 using Editor.Handlers;
 using Editor.Repositories;
+using Editor.Services;
 using Editor.Utils;
 using System;
 using System.Collections.Generic;
@@ -19,10 +20,13 @@ namespace Editor.GameProject.ViewModels
     public class OpenProjectViewModel : ViewModelBase
     {
         public IFileRepository fileRepository { get; }
+        public IProjectService projectService { get; }
 
-        public OpenProjectViewModel(IFileRepository _fileRepository)
+        public OpenProjectViewModel(IFileRepository _fileRepository, IProjectService _projectService)
         {
             fileRepository = _fileRepository;
+            projectService = _projectService;
+
             try
             {
                 if (!Directory.Exists(Constants.ApplicationDataPath))
@@ -78,7 +82,7 @@ namespace Editor.GameProject.ViewModels
                     OnPropertyChanged(nameof(Projects));
                 }
             }
-        }  
+        }
         #endregion
 
         #region ButtonCommands
@@ -105,7 +109,7 @@ namespace Editor.GameProject.ViewModels
 
         #region Public methods
 
-        public void DeleteProject(object args)
+        private void DeleteProject(object args)
         {
             if (args == null)
             {
@@ -119,7 +123,7 @@ namespace Editor.GameProject.ViewModels
 
             var projectData = args as ProjectData;
             (string message, string header, MessageBoxButton button, MessageBoxImage messageBoxImage) = MessageBoxHelper.GetMessageBoxSettings(projectData);
-            
+
             if (MessageBox.Show(message, header, button, messageBoxImage) == MessageBoxResult.Yes)
             {
                 ReadProjectData();
@@ -136,7 +140,7 @@ namespace Editor.GameProject.ViewModels
         #endregion
 
         #region Private methods
-        
+
         private void OpenProject(object args)
         {
             if (args == null)
@@ -150,15 +154,23 @@ namespace Editor.GameProject.ViewModels
             }
 
             var openProjectView = args as OpenProjectView;
+            var selectedProject = OpenSelectedItem;
             ReadProjectData();
 
-            var listOfProjects = fileRepository.CreateOrAddProject(OpenSelectedItem, Projects.ToList());
+            (var project, var listOfProjects) = projectService.CreateOrAddProject(selectedProject, Projects.ToList());
 
-            RefreshProjects(listOfProjects);
-            WriteProjectData();
-
-            bool dialogResult = true;
+            bool dialogResult = false;
             var window = Window.GetWindow(openProjectView);
+            if (project != null)
+            {
+
+                RefreshProjects(listOfProjects);
+                WriteProjectData();
+
+                window.DataContext = project;
+                dialogResult = true;
+            }
+
             window.DialogResult = dialogResult;
             window.Close();
         }
@@ -171,7 +183,7 @@ namespace Editor.GameProject.ViewModels
                 Projects.Add(x);
             });
         }
-        
+
         private void ReadProjectData()
         {
             var listOfProjects = fileRepository.GetProjectData(Constants.ProjectDataPath);

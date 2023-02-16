@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace Editor.GameProject.ViewModels
 {
-    [DataContract]
+    [DataContract(Name = "Scene")]
     public class SceneViewModel : ViewModelBase
     {
         private string _name;
@@ -20,14 +20,33 @@ namespace Editor.GameProject.ViewModels
                 }
             }
         }
+
         [DataMember]
         public ProjectViewModel Project { get; private set; }
 
-        public SceneViewModel(string name, ProjectViewModel project)
+        private bool _isActive;
+        [DataMember]
+        public bool IsActive
+        {
+            get { return _isActive; }
+            set
+            {
+                if (_isActive != value)
+                {
+                    _isActive = value;
+                    OnPropertyChanged(nameof(IsActive));
+                }
+
+                
+            }
+        }
+
+        public SceneViewModel(string name, ProjectViewModel project, bool isActive)
         {
             Debug.Assert(project != null);
             Name = name;
             Project = project;
+            IsActive = isActive;
         }
     }
 }

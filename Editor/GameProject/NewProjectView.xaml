@@ -76,7 +76,7 @@
                     Width="45" 
                     Margin="5,0,0,0" 
                     Style="{DynamicResource RoundButton}"
-                    Click="OnOpenFileDialog_Click"/>
+                    Command="{Binding OpenFileDialogClickCommand}"/>
             </StackPanel>
             <!--Path-->
             <!--ErrorMEssage-->

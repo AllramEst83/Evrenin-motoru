@@ -39,35 +39,7 @@ namespace Editor.Repositories
             var projectDataList = new ProjectDataList() { Projects = projects };
 
             Serializer.ToFile(projectDataList, Constants.ProjectDataPath);
-        }
-
-        public List<ProjectData> CreateOrAddProject(ProjectData projectData, List<ProjectData> projects)
-        {
-            if (projectData == null)
-            {
-                return projects;
-            }
-
-            if (projects == null)
-            {
-                return new List<ProjectData>();
-            }
-
-            var project = projects.FirstOrDefault(x => x.FullPath == projectData.FullPath);
-            if (project != null)
-            {
-                project.Date = DateTime.Now;
-            }
-            else
-            {
-                project = projectData;
-                project.Date = DateTime.Now;
-
-                projects.Add(project);
-            }
-
-            return projects;
-        }
+        }       
 
         public (bool, List<ProjectData>) DeleteProject(ProjectData project, List<ProjectData> projects)
         {

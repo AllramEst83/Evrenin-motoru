@@ -2,7 +2,9 @@
 using Editor.GameProject.Models;
 using Editor.Handlers;
 using Editor.Repositories;
+using Editor.Services;
 using Editor.Utils;
+using Microsoft.Win32;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -20,11 +22,13 @@ namespace Editor.GameProject.ViewModels
         //TODO: Get path from the installation location 
         private readonly string _template = @"..\..\Editor\ProjectTemplates";
         public IFileRepository fileRepository { get; }
+        public IProjectService projectService { get; }
 
-        public NewProjectViewModel(IFileRepository _fileRepository)
+        public NewProjectViewModel(IFileRepository _fileRepository, IProjectService _projectService)
         {
             ProjectTemplates = new ReadOnlyObservableCollection<ProjectTemplate>(_projectTemplates);
             fileRepository = _fileRepository;
+            projectService = _projectService;
 
             try
             {
@@ -119,6 +123,16 @@ namespace Editor.GameProject.ViewModels
         #endregion
 
         #region ButtonCommands
+
+        private ICommand _openFileDialogClickCommand;
+        public ICommand OpenFileDialogClickCommand
+        {
+            get
+            {
+                return _openFileDialogClickCommand ??= new CommandHandler(OpenFileDialog, () => CanExecute);
+            }
+        }
+
         private ICommand _createlickCommand;
         public ICommand CreateClickCommand
         {
@@ -152,6 +166,7 @@ namespace Editor.GameProject.ViewModels
             var newProjectView = args as NewProjectView;
             var projectPath = CreateProject(SelectedItem);
             var dialogResult = false;
+            var window = Window.GetWindow(newProjectView);
 
             if (!string.IsNullOrEmpty(projectPath))
             {
@@ -162,13 +177,13 @@ namespace Editor.GameProject.ViewModels
                 };
 
                 var projects = fileRepository.GetProjectData(Constants.ProjectDataPath);
-                var listWithNewProject = fileRepository.CreateOrAddProject(projectData, projects);
-                fileRepository.SaveProjectData(Constants.ProjectDataPath, listWithNewProject);
+                (var project, var lostOfProjetcs) = projectService.CreateOrAddProject(projectData, projects);
+                fileRepository.SaveProjectData(Constants.ProjectDataPath, lostOfProjetcs);
 
+                window.DataContext = project;
                 dialogResult = true;
             }
 
-            var window = Window.GetWindow(newProjectView);
             window.DialogResult = dialogResult;
             window.Close();
 
@@ -177,6 +192,15 @@ namespace Editor.GameProject.ViewModels
 
         #region PrivateFunction
 
+        private void OpenFileDialog(object args)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                FileInfo fInfo = new FileInfo(openFileDialog.FileName);
+                ProjectPath = fInfo.DirectoryName ?? string.Empty;
+            }
+        }
         private string CreateProject(ProjectTemplate projectTemplate)
         {
             ValidateProjectPath();

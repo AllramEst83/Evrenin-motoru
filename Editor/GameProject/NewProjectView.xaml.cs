@@ -26,16 +26,5 @@ namespace Editor.GameProject
         {
             Application.Current.Shutdown();
         }
-
-        private void OnOpenFileDialog_Click(object sender, RoutedEventArgs e)
-        {
-
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            if (openFileDialog.ShowDialog() == true)
-            {
-                FileInfo fInfo = new FileInfo(openFileDialog.FileName);
-                filePathTxt.Text = fInfo.DirectoryName;
-            }
-        }
     }
 }
