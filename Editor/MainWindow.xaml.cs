@@ -1,7 +1,5 @@
 ﻿using Editor.GameProject;
-using Editor.GameProject.Models;
 using Editor.GameProject.ViewModels;
-using System;
 using System.ComponentModel;
 using System.Windows;
 

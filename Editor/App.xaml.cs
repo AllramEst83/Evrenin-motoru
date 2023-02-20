@@ -2,14 +2,9 @@
 using Editor.GameProject.ViewModels;
 using Editor.Repositories;
 using Editor.Services;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Configuration;
-using System.IO;
 using System.Windows;
-using static Editor.App;
 
 namespace Editor;
 
@@ -37,7 +32,6 @@ public partial class App : Application
             services.AddSingleton<NewProjectView>();
             services.AddSingleton<OpenProjectView>();
             services.AddSingleton<MainWindow>();
-
 
         }).Build();
 

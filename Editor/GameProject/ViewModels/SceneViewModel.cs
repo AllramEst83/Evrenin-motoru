@@ -36,8 +36,6 @@ namespace Editor.GameProject.ViewModels
                     _isActive = value;
                     OnPropertyChanged(nameof(IsActive));
                 }
-
-                
             }
         }
 

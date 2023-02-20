@@ -170,7 +170,7 @@ namespace Editor.GameProject.ViewModels
 
             if (!string.IsNullOrEmpty(projectPath))
             {
-                var projectData = new ProjectData()
+                ProjectData projectData = new()
                 {
                     ProjectName = ProjectName,
                     ProjectPath = projectPath,

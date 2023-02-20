@@ -1,5 +1,4 @@
-﻿using Editor.GameProject.Models;
-using Editor.Utils;
+﻿using Editor.Utils;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -38,6 +37,14 @@ namespace Editor.GameProject.ViewModels
             }
         }
         public static ProjectViewModel Current => Application.Current.MainWindow.DataContext as ProjectViewModel;
+
+        public ProjectViewModel(string name, string path)
+        {
+            Name = name;
+            Path = path;
+            OnDeserialized(new StreamingContext());
+        }
+
         public static ProjectViewModel Load(string file)
         {
             Debug.Assert(File.Exists(file));
@@ -67,12 +74,6 @@ namespace Editor.GameProject.ViewModels
 
             OnPropertyChanged(nameof(Scenes));
             ActiveScene = Scenes.FirstOrDefault(x => x.IsActive)!;
-        }
-        public ProjectViewModel(string name, string path)
-        {
-            Name = name;
-            Path = path;
-            OnDeserialized(new StreamingContext());
         }
     }
 }

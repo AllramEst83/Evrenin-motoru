@@ -1,12 +1,8 @@
 ﻿using Editor.GameProject.Models;
 using Editor.Utils;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 
 namespace Editor.Repositories
 {
@@ -39,7 +35,7 @@ namespace Editor.Repositories
             var projectDataList = new ProjectDataList() { Projects = projects };
 
             Serializer.ToFile(projectDataList, Constants.ProjectDataPath);
-        }       
+        }
 
         public (bool, List<ProjectData>) DeleteProject(ProjectData project, List<ProjectData> projects)
         {

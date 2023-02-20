@@ -1,11 +1,7 @@
-﻿using Editor.GameProject.Models;
-using Editor.GameProject.ViewModels;
-using System.Reflection.PortableExecutable;
+﻿using Editor.GameProject.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace Editor.GameProject
 {
